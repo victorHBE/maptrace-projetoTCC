@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "axios": "^1.4.0",
+    "geojson-area": "^0.2.1",
+    "polygon-clipping": "^0.15.3"
+  }
+}

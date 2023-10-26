@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ===== CSS ===== -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- ===== Boxicons CSS ===== -->
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- ===== API LEAFLET ===== -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+        integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+        crossorigin="" />
+
+    <!-- ===== Bootstrap ===== -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
+
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+        integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+        crossorigin="">
+        </script>
+
+    <!-- Script Turf -->
+    <script src="./ScriptsMin/turf.min.js" charset="utf-8"></script>
+
+    <!-- Script Navbar -->
+    <!--<script src="./Scripts/scriptNav.js"></script>
+
+    <!-Script do axios-->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+
+    <style>
+        body {
+            overflow: auto;
+            margin: 80px auto;
+
+        }
+    </style>
+
+    <!--<title>Responsive Navigation Menu Bar</title>-->
+</head>
+
+<body>
+
+    <nav>
+        <div class="nav-bar">
+            <i class='bx bx-menu sidebarOpen'></i>
+            <span class="logo navLogo"><a href="index.html">MapTrace</a></span>
+
+            <div class="menu">
+                <div class="logo-toggle">
+                    <span class="logo"><a href="index.html">MapTrace</a></span>
+                    <i class='bx bx-x siderbarClose'></i>
+                </div>
+
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="envio.html">Enviar arquivo</a></li>
+                    <li><a href="https://github.com/victorHBE">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="darkLight-searchBox">
+                <div class="dark-light">
+                    <i class='bx bx-moon moon'></i>
+                    <i class='bx bx-sun sun'></i>
+                </div>
+
+                <div class="searchBox">
+                    <div class="searchToggle">
+                        <i class='bx bx-x cancel'></i>
+                        <i class='bx bx-search search'></i>
+                    </div>
+
+                    <div class="search-field">
+                        <input type="text" placeholder="Search...">
+                        <i class='bx bx-search'></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo -->
+    <div class="container">
+        <div class="row" id="card"></div>
+        <div id="loader" style="display: none;" class="custom-loader"></div>
+    </div>
+
+    <script>
+        // document.addEventListener('DOMContentLoaded', function () {
+        //     // Recuperando os dados e as sobreposições do armazenamento local
+        //     //const dadosProcessados = JSON.parse(localStorage.getItem('dadosProcessados'));
+        //     const sobreposicoes = JSON.parse(localStorage.getItem('sobreposicoes'));
+        //     const cidade = JSON.parse(localStorage.getItem('cidade'));
+        //     //console.log(sobreposicoes);
+        //     //console.log(cidade);
+
+        //     // Verificando se os dados e as sobreposições existem
+        //     if (sobreposicoes) {
+        //         axios.post('http://localhost:3000/overlap/salvar-dados', { sobreposicoes, cidade })
+        //             .then(response => {
+        //                 console.log(response);
+        //                 //localStorage.setItem('dadosEnviados', 'true'); // Marcando os dados como enviados
+        //             })
+        //             .catch(error => {
+        //                 console.error('Erro ao enviar os dados:', error);
+        //             });
+        //     }
+        // }); 
+        
+    </script>
+
+    <script>
+        var cardConteiner = document.getElementById("card");
+        const loader = document.querySelector('#loader');
+        loader.style.display = 'block'; // Exibe o loader
+        
+        axios.get('http://localhost:3000/overlap/all')
+            .then(response => {
+                
+                criarCards(response.data)
+
+            })
+            .catch(error => console.log(error))
+
+        function criarCards(fulldados) {
+            //console.log(fulldados)
+            let html = '';
+
+            fulldados.forEach(dado => {
+
+                html += `<div class="col-md-4">
+                    <div class="card mb-4" style="width: 100%;">
+                        <div class="card-body">
+                            <h5 class="card-title">${dado.cidade}</h5>
+                            <p class="card-text">Sobreposições referentes a esta cidade: ${dado.cidade}</p>
+                            <a href="mapa.html?id=${dado._id}" class="btn btn-primary">Verificar Sobreposições</a>
+                        </div>
+                    </div>
+                </div>`;
+
+
+            });
+
+            cardConteiner.innerHTML = html;
+            loader.style.display = 'none';
+        }
+
+    </script>
+
+</body>
+
+</html>
